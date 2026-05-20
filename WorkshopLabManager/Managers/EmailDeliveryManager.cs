@@ -148,31 +148,26 @@ namespace WorkshopLabManager.Managers
 			return dict;
 		}
 
-		private static string BuildHtmlEmailBody(AttendeeInfo attendee, string publicIpAddress)
-		{
-			var sb = new StringBuilder();
-			sb.Append($@"
-<!DOCTYPE html>
-<html>
-  <body style=""font-family:Arial; font-size: 12pt;"">
-	<p>Hello {attendee.AttendeeName},</p>
-    <p>Welcome to <b>{Program.Context.AppConfig.WorkshopName}</b>! Here are your personalized lab resources for today's workshop.</p>
-    {FormatHtmlEmailHeading("Virtual Machine")}
-    {FormatHtmlEmailProperty("Remote Desktop", $"mstsc /v:{publicIpAddress}")}
-    {FormatHtmlEmailProperty("Username", $".\\{Program.Context.AppConfig.VirtualMachine.Credentials.AdminUsername}")}
-    {FormatHtmlEmailProperty("Password", Program.Context.AppConfig.VirtualMachine.Credentials.AdminPassword)}
-    {FormatHtmlEmailHeading("Event Hub")}
-    {FormatHtmlEmailProperty("Event Hub Namespace Name", attendee.EventHubNamespaceName)}
-    {FormatHtmlEmailProperty("Event Hub SAS Token", attendee.EventHubSasToken)}
-    {FormatHtmlEmailHeading("Storage")}
-    {FormatHtmlEmailProperty("Storage Connection String", attendee.StorageAccountConnectionString)}
-    {FormatHtmlEmailHeading("OpenAI")}
-    {FormatHtmlEmailProperty("OpenAI API Key", Program.Context.AppConfig.OpenAI.ApiKey)}
-    <p>Enjoy your day of learning!</p>
-  </body>
-</html>");
-			return sb.ToString();
-		}
+		private static string BuildHtmlEmailBody(AttendeeInfo attendee, string publicIpAddress) => $@"
+			<!DOCTYPE html>
+			<html>
+				<body style=""font-family:Arial; font-size: 12pt;"">
+					<p>Hello {attendee.AttendeeName},</p>
+					<p>Welcome to <b>{Program.Context.AppConfig.WorkshopName}</b>! Here are your personalized lab resources for today's workshop.</p>
+					{FormatHtmlEmailHeading("Virtual Machine")}
+					{FormatHtmlEmailProperty("Remote Desktop", $"mstsc /v:{publicIpAddress}")}
+					{FormatHtmlEmailProperty("Username", $".\\{Program.Context.AppConfig.VirtualMachine.Credentials.AdminUsername}")}
+					{FormatHtmlEmailProperty("Password", Program.Context.AppConfig.VirtualMachine.Credentials.AdminPassword)}
+					{FormatHtmlEmailHeading("Event Hub")}
+					{FormatHtmlEmailProperty("Event Hub Namespace Name", attendee.EventHubNamespaceName)}
+					{FormatHtmlEmailProperty("Event Hub SAS Token", attendee.EventHubSasToken)}
+					{FormatHtmlEmailHeading("Storage")}
+					{FormatHtmlEmailProperty("Storage Connection String", attendee.StorageAccountConnectionString)}
+					{FormatHtmlEmailHeading("OpenAI")}
+					{FormatHtmlEmailProperty("OpenAI API Key", Program.Context.AppConfig.OpenAI.ApiKey)}
+					<p>Enjoy your day of learning!</p>
+				</body>
+			</html>";
 
 		private static string FormatHtmlEmailHeading(string text) =>
 			$@"<p style=""margin-top: 16px; margin-bottom: 4px; font-size: 14pt;""><b>{text}</b></p>";
