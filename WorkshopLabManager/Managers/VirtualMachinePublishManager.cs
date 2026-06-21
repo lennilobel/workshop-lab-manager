@@ -5,6 +5,7 @@ using Azure.ResourceManager.Compute.Models;
 using WorkshopLabManager.Helpers;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace WorkshopLabManager.Managers
 {
@@ -22,6 +23,12 @@ namespace WorkshopLabManager.Managers
 			var stepStarted = default(DateTime);
 			var started = DateTime.UtcNow;
 
+			var publishTargetRegionNames =
+				publishConfig.TargetRegionNames
+					.Append(Program.Context.AppConfig.TargetRegionName)
+					.Distinct(StringComparer.OrdinalIgnoreCase)
+					.ToArray();         
+			
 			// 1) Discover source VM
 			Console.WriteLine($"\n[1/10] Discovering source VM '{publishConfig.SourceVmName}'...");
 			stepStarted = DateTime.UtcNow;
@@ -154,13 +161,13 @@ namespace WorkshopLabManager.Managers
 			Console.WriteLine($"[{DateTime.UtcNow.Subtract(stepStarted)}] Snapshot deleted");
 
 			// 10) Replicate image
-			Console.WriteLine($"\n[10/10] Updating target regions '{string.Join(',', publishConfig.TargetRegionNames)}'...");
+			Console.WriteLine($"\n[10/10] Updating target regions '{string.Join(',', publishTargetRegionNames)}'...");
 			stepStarted = DateTime.UtcNow;
 			var patch = new GalleryImageVersionPatch
 			{
 				PublishingProfile = new GalleryImageVersionPublishingProfile()
 			};
-			foreach (var region in publishConfig.TargetRegionNames)
+			foreach (var region in publishTargetRegionNames)
 			{
 				patch.PublishingProfile.TargetRegions.Add(new TargetRegion(region));
 			}

@@ -179,7 +179,7 @@ namespace WorkshopLabManager.Managers
 				}
 				else
 				{
-					var targetName = $"{Program.Context.AppConfig.SqlDatabase.ServerName}-{attendee.AttendeeNameIdentifier}";
+					var targetName = $"{Program.Context.AppConfig.SqlDatabase.ServerNamePrefix}-{attendee.AttendeeNameIdentifier}";
 					if (resource.Data.Name == targetName)
 					{
 						list.Add(resource);
@@ -202,7 +202,7 @@ namespace WorkshopLabManager.Managers
 				}
 				else
 				{
-					var targetName = $"{Program.Context.AppConfig.EventHub.NamespaceName}-{attendee.AttendeeNameIdentifier}";
+					var targetName = $"{Program.Context.AppConfig.EventHub.NamespaceNamePrefix}-{attendee.AttendeeNameIdentifier}";
 					if (resource.Data.Name == targetName)
 					{
 						list.Add(resource);

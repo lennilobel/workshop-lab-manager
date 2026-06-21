@@ -148,7 +148,7 @@ namespace WorkshopLabManager.Managers
 
 		private static async Task CreateSqlDatabaseResources(AttendeeInfo attendee, int counter, CancellationToken cancellationToken)
 		{
-			var serverName = $"{Program.Context.AppConfig.SqlDatabase.ServerName}-{attendee.AttendeeNameIdentifier}";
+			var serverName = $"{Program.Context.AppConfig.SqlDatabase.ServerNamePrefix}-{attendee.AttendeeNameIdentifier}";
 			attendee.SqlDatabaseServerName = serverName;
 
 			var sqlServerCollection = Program.Context.TargetResourceGroup.GetSqlServers();
@@ -261,7 +261,7 @@ namespace WorkshopLabManager.Managers
 		{
 			var attendeeNameIdentifier = attendeeInfo.AttendeeNameIdentifier;
 
-			var eventHubNamespaceName = $"{Program.Context.AppConfig.EventHub.NamespaceName}-{attendeeNameIdentifier}";
+			var eventHubNamespaceName = $"{Program.Context.AppConfig.EventHub.NamespaceNamePrefix}-{attendeeNameIdentifier}";
 			attendeeInfo.EventHubNamespaceName = eventHubNamespaceName;
 
 			var eventHubNamespaceCollection = Program.Context.TargetResourceGroup.GetEventHubsNamespaces();

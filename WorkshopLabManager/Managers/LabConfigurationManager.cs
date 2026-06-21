@@ -75,7 +75,7 @@ namespace WorkshopLabManager.Managers
 			if (appConfig.SqlDatabase.IsEnabled)
 			{
 				ConsoleHelper.WriteLine($"SQL Database", ConsoleColor.White);
-				ConsoleHelper.WriteLine($"  Server Name            {appConfig.SqlDatabase.ServerName}");
+				ConsoleHelper.WriteLine($"  Server Name Prefix     {appConfig.SqlDatabase.ServerNamePrefix}");
 				ConsoleHelper.WriteLine($"  Username               {appConfig.SqlDatabase.Username}");
 				ConsoleHelper.WriteLine($"  Password               {appConfig.SqlDatabase.Password}");
 				ConsoleHelper.WriteLine($"  Database SKU           {appConfig.SqlDatabase.DatabaseSku}");
@@ -88,7 +88,7 @@ namespace WorkshopLabManager.Managers
 			if (appConfig.EventHub.IsEnabled)
 			{
 				ConsoleHelper.WriteLine($"Event Hub", ConsoleColor.White);
-				ConsoleHelper.WriteLine($"  Namespace Name         {appConfig.EventHub.NamespaceName}");
+				ConsoleHelper.WriteLine($"  Namespace Name Prefix  {appConfig.EventHub.NamespaceNamePrefix}");
 				ConsoleHelper.WriteLine($"  Event Hub Name         {appConfig.EventHub.EventHubName}");
 				ConsoleHelper.WriteLine($"  Policy Name            {appConfig.EventHub.PolicyName}");
 				ConsoleHelper.WriteLine($"  SAS Token Expiration   {appConfig.EventHub.SasTokenExpirationDays} day(s)");

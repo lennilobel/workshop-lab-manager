@@ -42,7 +42,7 @@
 		public class SqlDatabaseConfig
 		{
 			public bool IsEnabled { get; init; }
-			public string ServerName { get; init; }
+			public string ServerNamePrefix { get; init; }
 			public string Username { get; init; }
 			public string Password { get; init; }
 			public string DatabaseSku { get; init; }
@@ -58,7 +58,7 @@
 		public class EventHubConfig
 		{
 			public bool IsEnabled { get; init; }
-			public string NamespaceName { get; init; }
+			public string NamespaceNamePrefix { get; init; }
 			public string EventHubName { get; init; }
 			public string PolicyName { get; init; }
 			public int SasTokenExpirationDays { get; init; }
