@@ -13,7 +13,11 @@ namespace WorkshopLabManager.Helpers
 		public static async Task<SqlDatabaseResource> CreateDatabase(SqlServerResource server, string databaseName, CancellationToken cancellationToken)
 		{
 			var databases = server.GetSqlDatabases();
-			var databaseData = new SqlDatabaseData(new AzureLocation(Program.Context.AppConfig.TargetRegionName)) { Sku = new SqlSku(Program.Context.AppConfig.SqlDatabase.DatabaseSku) };
+			var databaseData = new SqlDatabaseData(new AzureLocation(Program.Context.AppConfig.TargetRegionName))
+			{
+				Sku = new SqlSku(Program.Context.AppConfig.SqlDatabase.DatabaseSku),
+				Collation = "Latin1_General_100_CI_AS_SC_UTF8",
+			};
 			var createOperation = await databases.CreateOrUpdateAsync(WaitUntil.Completed, databaseName, databaseData, cancellationToken);
 			var database = createOperation.Value;
 
