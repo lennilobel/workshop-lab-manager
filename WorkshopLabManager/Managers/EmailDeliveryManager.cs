@@ -148,26 +148,73 @@ namespace WorkshopLabManager.Managers
 			return dict;
 		}
 
-		private static string BuildHtmlEmailBody(AttendeeInfo attendee, string publicIpAddress) => $@"
+		private static string BuildHtmlEmailBody(AttendeeInfo attendee, string publicIpAddress)
+		{
+			var virtualMachine = default(string);
+			var sqlDatabase = default(string);
+			var eventHub = default(string);
+			var storage = default(string);
+			var openAI = default(string);
+
+			if (Program.Context.AppConfig.VirtualMachine.IsEnabled)
+			{
+				virtualMachine = $@"
+					{FormatHtmlEmailHeading("Virtual Machine")}
+					{FormatHtmlEmailProperty("Remote Desktop", $"mstsc /v:{publicIpAddress}")}
+					{FormatHtmlEmailProperty("Username", $".\\{Program.Context.AppConfig.VirtualMachine.Credentials.AdminUsername}")}
+					{FormatHtmlEmailProperty("Password", Program.Context.AppConfig.VirtualMachine.Credentials.AdminPassword)}
+				";
+			}
+
+			if (Program.Context.AppConfig.SqlDatabase.IsEnabled)
+			{
+				sqlDatabase = $@"
+					{FormatHtmlEmailHeading("SQL Database")}
+					{FormatHtmlEmailProperty("Server Name", attendee.SqlDatabaseServerName)}
+					{FormatHtmlEmailProperty("Username", Program.Context.AppConfig.SqlDatabase.Username)}
+					{FormatHtmlEmailProperty("Password", Program.Context.AppConfig.SqlDatabase.Password)}
+				";
+			}
+
+			if (Program.Context.AppConfig.EventHub.IsEnabled)
+			{
+				eventHub = $@"
+					{FormatHtmlEmailHeading("Event Hub")}
+					{FormatHtmlEmailProperty("Event Hub Namespace Name", attendee.EventHubNamespaceName)}
+					{FormatHtmlEmailProperty("Event Hub SAS Token", attendee.EventHubSasToken)}
+				";
+			}
+
+			if (Program.Context.AppConfig.Storage.IsEnabled)
+			{
+				storage = $@"
+					{FormatHtmlEmailHeading("Storage")}
+					{FormatHtmlEmailProperty("Storage Connection String", attendee.StorageAccountConnectionString)}
+				";
+			}
+
+			openAI = $@"
+				{FormatHtmlEmailHeading("OpenAI")}
+				{FormatHtmlEmailProperty("OpenAI API Key", Program.Context.AppConfig.OpenAI.ApiKey)}
+			";
+
+			var body = $@"
 			<!DOCTYPE html>
 			<html>
 				<body style=""font-family:Arial; font-size: 12pt;"">
 					<p>Hello {attendee.AttendeeName},</p>
 					<p>Welcome to <b>{Program.Context.AppConfig.WorkshopName}</b>! Here are your personalized lab resources for today's workshop.</p>
-					{FormatHtmlEmailHeading("Virtual Machine")}
-					{FormatHtmlEmailProperty("Remote Desktop", $"mstsc /v:{publicIpAddress}")}
-					{FormatHtmlEmailProperty("Username", $".\\{Program.Context.AppConfig.VirtualMachine.Credentials.AdminUsername}")}
-					{FormatHtmlEmailProperty("Password", Program.Context.AppConfig.VirtualMachine.Credentials.AdminPassword)}
-					{FormatHtmlEmailHeading("Event Hub")}
-					{FormatHtmlEmailProperty("Event Hub Namespace Name", attendee.EventHubNamespaceName)}
-					{FormatHtmlEmailProperty("Event Hub SAS Token", attendee.EventHubSasToken)}
-					{FormatHtmlEmailHeading("Storage")}
-					{FormatHtmlEmailProperty("Storage Connection String", attendee.StorageAccountConnectionString)}
-					{FormatHtmlEmailHeading("OpenAI")}
-					{FormatHtmlEmailProperty("OpenAI API Key", Program.Context.AppConfig.OpenAI.ApiKey)}
+					{virtualMachine}
+					{sqlDatabase}
+					{eventHub}
+					{storage}
+					{openAI}
 					<p>Enjoy your day of learning!</p>
 				</body>
 			</html>";
+
+			return body;
+		}
 
 		private static string FormatHtmlEmailHeading(string text) =>
 			$@"<p style=""margin-top: 16px; margin-bottom: 4px; font-size: 14pt;""><b>{text}</b></p>";
