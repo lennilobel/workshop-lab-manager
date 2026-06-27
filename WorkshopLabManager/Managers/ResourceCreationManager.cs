@@ -162,6 +162,7 @@ namespace WorkshopLabManager.Managers
 			var server = await CreateSqlDatabaseServer(counter, serverName, sqlServerCollection, cancellationToken);
 
 			await CreateEmptyDatabase(attendee, counter, server, databaseName: "HolDb", cancellationToken);
+			await CreateEmptyDatabase(attendee, counter, server, databaseName: "CESDemo", cancellationToken);
 			await CreateAdventureWorksDatabase(attendee, counter, server.Data.Name, cancellationToken);
 		}
 
