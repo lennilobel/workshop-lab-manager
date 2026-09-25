@@ -7,6 +7,7 @@
 		public string EmailAddress { get; }
 		public string SqlDatabaseServerName { get; set; }
 		public string EventHubNamespaceName { get; set; }
+		public string EventHubPrimaryKey { get; internal set; }
 		public string EventHubSasToken { get; set; }
 		public string StorageAccountConnectionString { get; set; }
 

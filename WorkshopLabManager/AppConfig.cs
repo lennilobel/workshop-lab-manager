@@ -61,6 +61,7 @@
 			public string NamespaceNamePrefix { get; init; }
 			public string EventHubName { get; init; }
 			public string PolicyName { get; init; }
+			public bool UseSasToken { get; init; }
 			public int SasTokenExpirationDays { get; init; }
 		}
 

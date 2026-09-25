@@ -91,6 +91,7 @@ namespace WorkshopLabManager.Managers
 				ConsoleHelper.WriteLine($"  Namespace Name Prefix  {appConfig.EventHub.NamespaceNamePrefix}");
 				ConsoleHelper.WriteLine($"  Event Hub Name         {appConfig.EventHub.EventHubName}");
 				ConsoleHelper.WriteLine($"  Policy Name            {appConfig.EventHub.PolicyName}");
+				ConsoleHelper.WriteLine($"  Use SAS Token          {appConfig.EventHub.UseSasToken}");
 				ConsoleHelper.WriteLine($"  SAS Token Expiration   {appConfig.EventHub.SasTokenExpirationDays} day(s)");
 				ConsoleHelper.WriteLine();
 			}

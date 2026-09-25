@@ -52,7 +52,7 @@ namespace WorkshopLabManager.Managers
 			}
 
 			var created = 0;
-			var outputLines = new List<string> { "AttendeeName,EmailAddress,SqlDatabaseServerName,EventHubNamespaceName,EventHubSasToken,StorageAccountConnectionString,VirtualMachineIpAddress" };
+			var outputLines = new List<string> { "AttendeeName,EmailAddress,SqlDatabaseServerName,EventHubNamespaceName,EventHubSasToken,EventHubPrimaryKey,StorageAccountConnectionString,VirtualMachineIpAddress" };
 			var outputLock = new object();
 			var options = new ParallelOptions { MaxDegreeOfParallelism = MaxDop };
 
@@ -94,7 +94,7 @@ namespace WorkshopLabManager.Managers
 
 					lock (outputLock)
 					{
-						outputLines.Add($"{attendee.AttendeeName},{attendee.EmailAddress},{attendee.SqlDatabaseServerName},{attendee.EventHubNamespaceName},{attendee.EventHubSasToken},{attendee.StorageAccountConnectionString},{virtualMachineIpAddress}");
+						outputLines.Add($"{attendee.AttendeeName},{attendee.EmailAddress},{attendee.SqlDatabaseServerName},{attendee.EventHubNamespaceName},{attendee.EventHubSasToken},{attendee.EventHubPrimaryKey},{attendee.StorageAccountConnectionString},{virtualMachineIpAddress}");
 					}
 
 					Interlocked.Increment(ref created);
@@ -271,6 +271,7 @@ namespace WorkshopLabManager.Managers
 			{
 				ConsoleHelper.WriteLine($"{counter,3}: Skipping event hub namespace: {eventHubNamespaceName} (already exists)", ConsoleColor.DarkGreen);
 				attendeeInfo.EventHubSasToken = await GenerateEventHubSasTokenAsync(eventHubNamespaceName);
+				attendeeInfo.EventHubPrimaryKey = await GetEventHubPrimaryKeyAsync(eventHubNamespaceName);
 				return;
 			}
 
@@ -281,7 +282,8 @@ namespace WorkshopLabManager.Managers
 
 			var eventHubNamespaceData = new EventHubsNamespaceData(Program.Context.AppConfig.TargetRegionName)
 			{
-				Sku = new EventHubsSku(EventHubsSkuName.Basic)
+				Sku = new EventHubsSku(EventHubsSkuName.Standard),
+				KafkaEnabled = true
 			};
 
 			var eventHubNamespaceResource = await eventHubNamespaceCollection.CreateOrUpdateAsync(WaitUntil.Completed, eventHubNamespaceName, eventHubNamespaceData, cancellationToken);
@@ -306,23 +308,41 @@ namespace WorkshopLabManager.Managers
 			var eventHubRuleData = new EventHubsAuthorizationRuleData
 			{
 				Rights =
-					{
-						EventHubsAccessRight.Manage,
-						EventHubsAccessRight.Listen,
-						EventHubsAccessRight.Send,
-					}
+				{
+					EventHubsAccessRight.Manage,
+					EventHubsAccessRight.Listen,
+					EventHubsAccessRight.Send,
+				}
 			};
 
 			var eventHubAuthorizationRules = eventHub.Value.GetEventHubAuthorizationRules();
 
-			await eventHubAuthorizationRules.CreateOrUpdateAsync(WaitUntil.Completed, Program.Context.AppConfig.EventHub.PolicyName, eventHubRuleData, cancellationToken);
+			await eventHubAuthorizationRules.CreateOrUpdateAsync(
+				WaitUntil.Completed,
+				Program.Context.AppConfig.EventHub.PolicyName,
+				eventHubRuleData,
+				cancellationToken);
 
-			// Generate SAS token
+			// Get primary key (can use either primary key or SAS token)
+
+			attendeeInfo.EventHubPrimaryKey = await GetEventHubPrimaryKeyAsync(eventHubNamespaceName);
+
+			// Generate SAS token (can use either primary key or SAS token)
 
 			attendeeInfo.EventHubSasToken = await GenerateEventHubSasTokenAsync(eventHubNamespaceName);
 
 			var elapsed = DateTime.Now.Subtract(started);
 			ConsoleHelper.WriteLine($"{counter,3}: Created event hub namespace: {eventHubNamespaceName} in {elapsed}", ConsoleColor.Yellow);
+		}
+
+		private static async Task<string> GetEventHubPrimaryKeyAsync(string namespaceName)
+		{
+			var namespaceResource = await Program.Context.TargetResourceGroup.GetEventHubsNamespaces().GetAsync(namespaceName);
+			var eventHub = await namespaceResource.Value.GetEventHubs().GetAsync(Program.Context.AppConfig.EventHub.EventHubName);
+			var policy = await eventHub.Value.GetEventHubAuthorizationRules().GetAsync(Program.Context.AppConfig.EventHub.PolicyName);
+			var primaryKey = (await policy.Value.GetKeysAsync()).Value.PrimaryKey;
+
+			return primaryKey;
 		}
 
 		private static async Task<string> GenerateEventHubSasTokenAsync(string namespaceName)

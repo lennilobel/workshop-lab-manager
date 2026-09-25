@@ -1,13 +1,12 @@
-﻿using WorkshopLabManager.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WorkshopLabManager.Helpers;
 
 namespace WorkshopLabManager.Managers
 {
@@ -113,8 +112,9 @@ namespace WorkshopLabManager.Managers
 			const int EmailAddressColumnIndex = 1;
 			const int SqlDatabaseServerNameColumnIndex = 2;
 			const int EventHubNamespaceNameColumnIndex = 3;
-			const int EventHubSasTokenColumnIndex = 4;
-			const int StorageAccountConnectionStringColumnIndex = 5;
+			const int EventHubPrimaryKeyColumnIndex = 4;
+			const int EventHubSasTokenColumnIndex = 5;
+			const int StorageAccountConnectionStringColumnIndex = 6;
 
 			var currentDir = AppContext.BaseDirectory + "\\..\\..\\..";
 			var path = Path.Combine(currentDir, "AttendeeResources.csv");
@@ -139,6 +139,7 @@ namespace WorkshopLabManager.Managers
 				{
 					SqlDatabaseServerName = parts[SqlDatabaseServerNameColumnIndex].Trim(),
 					EventHubNamespaceName = parts[EventHubNamespaceNameColumnIndex].Trim(),
+					EventHubPrimaryKey = parts[EventHubPrimaryKeyColumnIndex].Trim(),
 					EventHubSasToken = parts[EventHubSasTokenColumnIndex].Trim(),
 					StorageAccountConnectionString = parts[StorageAccountConnectionStringColumnIndex].Trim()
 				};
@@ -179,10 +180,22 @@ namespace WorkshopLabManager.Managers
 			if (Program.Context.AppConfig.EventHub.IsEnabled)
 			{
 				eventHub = $@"
-					{FormatHtmlEmailHeading("Event Hub")}
-					{FormatHtmlEmailProperty("Event Hub Namespace Name", attendee.EventHubNamespaceName)}
-					{FormatHtmlEmailProperty("Event Hub SAS Token", attendee.EventHubSasToken)}
-				";
+						{FormatHtmlEmailHeading("Event Hub")}
+						{FormatHtmlEmailProperty("Event Hub Namespace Name", attendee.EventHubNamespaceName)}
+					";
+
+				if (Program.Context.AppConfig.EventHub.UseSasToken)
+				{
+					eventHub += $@"
+						{FormatHtmlEmailProperty("Event Hub SAS Token", attendee.EventHubSasToken)}
+					";
+				}
+				else
+				{
+					eventHub += $@"
+						{FormatHtmlEmailProperty("Event Hub Primary Key", attendee.EventHubPrimaryKey)}
+					";
+				}
 			}
 
 			if (Program.Context.AppConfig.Storage.IsEnabled)
