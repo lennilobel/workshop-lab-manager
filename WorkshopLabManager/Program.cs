@@ -128,7 +128,7 @@ namespace WorkshopLabManager
 				})
 				.ToArray();
 
-			var credential = new AzureCliCredential(); // requires `az login`
+			var credential = new VisualStudioCredential();  // Establish Azure credentials from Tools, Options, Azure Service Authentication in Visual Studio
 			var armClient = new ArmClient(credential);
 
 			var subscriptionData = default(SubscriptionData);
